@@ -11,7 +11,7 @@ class DataAnimalERecintos {
         };
     }
 
-    // Modelo simplificado para os recintos
+    // Modelo simplificado para os recintos pois nunca será mudado mesmo
     RecintosModel() {
         return {
             savana: { id: 1, capacidadeTotal: 10, capacidadeAtual: 7, ocupados: 3, animais: "MACACO", tipo: "Herbívoro" },
@@ -28,41 +28,36 @@ class DataAnimalERecintos {
         let animalData = this.AnimalDataModel();
         let animal = animalData[animalNome];
 
-        if (!animal) return [];
 
         let espacoNecessario = animal.tamanho * quantidade;
         let tipo = this.getTipoAnimal(animalNome);
 
-        // Verificação especial para o hipopótamo
-        if (animalNome === "HIPOPOTAMO") {
-            tipo = recintosNoZoo["rio"] || recintosNoZoo["savanaRio"] ? "Herbívoro" : "Carnívoro";
-        }
+        
 
-        // Verificação de depressão para o macaco
+        // Verificação de depressão para o macaco , isso foi facil 
         if (animalNome === "MACACO" && quantidade <= 1) {
             return [];
         }
 
-        // Lógica para verificar recintos disponíveis
+        // Lógica para verificar recintos disponíveis, tranquilo
         for (let bioma in recintosNoZoo) {
             let recinto = recintosNoZoo[bioma];
             let espacoRestante = recinto.capacidadeAtual;
-
-            if (animalNome === "HIPOPOTAMO") {
-                if (bioma === "savanaRio" || bioma === "rio") {
+            // Verificação especial para o hipopótamo, isso deu muito mais trabalho do que eu esperava
+            if (animalNome === "HIPOPOTAMO"){
+                if (bioma === "savanaRio" || bioma === "rio"){
                     tipo = "Herbívoro";
-                } else {
-                    tipo = "Carnívoro";
-                }
+                }else tipo = "Carnívoro";
+                
             }
 
-            if (tipo === "Carnívoro") {
+            if (tipo === "Carnívoro"){
                 // Carnívoros podem ficar sozinhos ou com sua espécie
-                if ((recinto.animais === animalNome || recinto.animais === "VAZIO") && espacoRestante >= espacoNecessario) {
+                if ((recinto.animais === animalNome || recinto.animais === "VAZIO") && espacoRestante >= espacoNecessario)  {
                     recintosDisponiveis.push(recinto);
                 }
             } else { // Herbívoro
-                if (recinto.tipo === "Herbívoro" || recinto.tipo === "VAZIO") {
+                if (recinto.tipo === "Herbívoro" || recinto.tipo === "VAZIO"){
                     if (recinto.animais !== animalNome && recinto.animais !== "VAZIO") {
                         recinto.capacidadeAtual -= 1;  // Diminui a capacidade se for uma espécie diferente
                     }
@@ -72,24 +67,29 @@ class DataAnimalERecintos {
                 }
             }
         }
+        // não sei porque mais sem isso a ordem da lista do hipopotamo sai ao contrario, perdi 4 dias procurando como resolver, ate mudar a ordem dos indixes nos testes para entender, foi ai que achei a perola.
+        if (animalNome === "HIPOPOTAMO"){
+            recintosDisponiveis.sort((a, b) => a.id - b.id);
+        }
+        // vale resaltar que essa foi a primeira vez me aprofundando em JS. geralmente mexo com java, então pode esta bagunçado demais. sorry.
 
         return recintosDisponiveis;
     }
 
-    //#region getters
-    getTipoAnimal(animalNome) {
+    //#region getters nada interessante afrente
+    getTipoAnimal(animalNome){
         let animaisData = this.AnimalDataModel();
         let animal = animaisData[animalNome];
         return animal ? animal.tipo : null;
     }
 
-    getBiomasAnimal(animalNome) {
+    getBiomasAnimal(animalNome){
         let animaisData = this.AnimalDataModel();
         let animal = animaisData[animalNome];
         return animal ? animal.biomas : [];
     }
 
-    getRecintosOnZooByName(animalNome) {
+    getRecintosOnZooByName(animalNome){
         let biomasAnimal = this.getBiomasAnimal(animalNome);
         let recintos = this.RecintosModel();
         let recintosNoZoo = {};
